@@ -1,0 +1,10 @@
+{
+  "basics": [
+    {
+      "id": "one_liner",
+      "input": "Microsoft Agent Framework の要点を一文で",
+      "expect_contains": ["エージェント", "ワークフロー"]
+    }
+  ]
+}
+

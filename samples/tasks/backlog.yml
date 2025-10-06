@@ -1,0 +1,382 @@
+version: 1.0
+owner: samples-team
+updated: 2025-10-06
+milestones:
+  - id: M1
+    title: Foundations
+  - id: M2
+    title: Workflows
+  - id: M3
+    title: Integrations
+  - id: M4
+    title: Identity
+  - id: M5
+    title: OSS Comparison
+  - id: M6
+    title: Ops & Evaluation
+  - id: M7
+    title: End-to-End
+
+tasks:
+  # M1 — Foundations
+  - id: TASK-001
+    title: サンプル用リポジトリ骨子の作成
+    milestone: M1
+    priority: P0
+    category: dx
+    status: done
+    description: samples配下の標準ディレクトリと共通ユーティリティの雛形を定義
+    deliverables:
+      - path: samples/README.md
+      - path: samples/_shared/
+    acceptance_criteria:
+      - サンプル共通の実行方法と.env例を提示
+      - 2つ以上のサンプルから共通コードを再利用可能
+
+  - id: TASK-002
+    title: Hello Agent（最小チャット）
+    milestone: M1
+    priority: P0
+    category: basics
+    status: done
+    description: MAFの最小チャット（同期/ストリーム）を実装
+    deliverables:
+      - path: samples/basics/hello_agent/
+    acceptance_criteria:
+      - 同期とストリーミング両方の実行例がある
+      - READMEに前提と実行手順が記載される
+
+  - id: TASK-003
+    title: ツール呼び出し（関数ツール1個）
+    milestone: M1
+    priority: P0
+    category: basics
+    status: done
+    description: 決定的な純関数ツールをエージェントから呼び出す
+    deliverables:
+      - path: samples/basics/tool_calling_single/
+    acceptance_criteria:
+      - ツールの入出力スキーマが明示
+      - 実行ログにツール実行が可視化される
+
+  - id: TASK-004
+    title: 会話メモリ（短期）
+    milestone: M1
+    priority: P1
+    category: basics
+    status: done
+    description: セッション内メモリで前発話参照が可能
+    deliverables:
+      - path: samples/basics/memory_short_term/
+    acceptance_criteria:
+      - 直前の情報を正しく参照するサンプルが動作
+      - クリア操作で忘却できる
+
+  - id: TASK-005
+    title: 構造化出力（pydantic 等）
+    milestone: M1
+    priority: P1
+    category: basics
+    status: done
+    description: LLM出力をスキーマでバリデーション
+    deliverables:
+      - path: samples/basics/structured_output/
+    acceptance_criteria:
+      - 不正出力時の再試行/エラー処理がある
+      - バリデーション通過例/失敗例の両方を提示
+
+  - id: TASK-006
+    title: DevUI を使った開発者向けデモ
+    milestone: M1
+    priority: P1
+    category: dx
+    status: review
+    description: Agent Framework の DevUI を用いてエージェント/ワークフローをブラウザから実行・デバッグできる最小デモを提供（ディレクトリ探索とプログラム登録の両方）。
+    deliverables:
+      - path: samples/devui/README.md
+      - path: samples/devui/agents/weather_agent/
+      - path: samples/devui/main.py
+    acceptance_criteria:
+      - `devui ./samples/devui/agents --port 8080` で WeatherAgent が検出・実行できる（.env から設定を読み込む）。
+      - `python samples/devui/main.py` のプログラム起動で `serve(entities=[agent])` が動作し、ブラウザが自動起動する（auto_open 既定可）。
+      - README に前提（認証/環境変数）・起動手順（CLI/プログラム）・トレーシング有効化方法（`--tracing framework`）が記載されている。
+
+  # M2 — Workflows
+  - id: TASK-010
+    title: 直列ワークフロー（Plan → Retrieve → Act）
+    milestone: M2
+    priority: P0
+    category: workflows
+    status: done
+    description: 複数ステップを直列に構成した基本フロー
+    deliverables:
+      - path: samples/workflows/sequential_pla-rtr-act/
+    acceptance_criteria:
+      - 各ステップが独立実行・ログ出力される
+      - 失敗時の中断とリカバリ手順が記載
+
+  - id: TASK-011
+    title: 条件分岐ワークフロー（意図分類で枝分かれ）
+    milestone: M2
+    priority: P1
+    category: workflows
+    status: done
+    description: ルーティングノードで処理経路を切替
+    deliverables:
+      - path: samples/workflows/branching_intent_router/
+    acceptance_criteria:
+      - 少なくとも2経路の分岐をデモ
+      - ルーティング根拠がログで確認可能
+
+  - id: TASK-012
+    title: 並列ワークフロー（gather/merge）
+    milestone: M2
+    priority: P1
+    category: workflows
+    status: done
+    description: 複数サブタスクを並列実行して集約
+    deliverables:
+      - path: samples/workflows/parallel_gather_merge/
+    acceptance_criteria:
+      - 最大並列数の制御が可能
+      - 集約時の順不同/失敗混在を処理
+
+  - id: TASK-013
+    title: 長時間ジョブ（コールバック/ポーリング）
+    milestone: M2
+    priority: P2
+    category: workflows
+    status: done
+    description: 外部処理の完了待ちとレジュームの設計例
+    deliverables:
+      - path: samples/workflows/long_running_job/
+    acceptance_criteria:
+      - タイムアウト/中断/再開のシナリオがある
+      - 状態保存の仕組みを提示
+
+  - id: TASK-014
+    title: リトライ/バックオフ/サーキットブレーカ
+    milestone: M2
+    priority: P2
+    category: workflows
+    status: done
+    description: 失敗に強い実行制御パターンの実装
+    deliverables:
+      - path: samples/workflows/retry_backoff_circuit/
+    acceptance_criteria:
+      - 失敗注入で挙動を検証できる
+      - ログにリトライ戦略が明示
+
+  # M3 — Integrations
+  - id: TASK-020
+    title: 外部REST API連携（天気APIなど）
+    milestone: M3
+    priority: P1
+    category: integrations
+    status: done
+    description: HTTPクライアントをツールとして利用する基本形
+    deliverables:
+      - path: samples/integrations/rest_basic/
+    acceptance_criteria:
+      - 成功/失敗/レート制限の分岐を実装
+      - モックでオフライン実行も可能
+
+  - id: TASK-021
+    title: Azure Functions 呼び出し（HTTP）
+    milestone: M3
+    priority: P2
+    category: integrations
+    status: done
+    description: 関数をエージェントの外部ツールとして呼び出す
+    deliverables:
+      - path: samples/integrations/azure_functions_http/
+    acceptance_criteria:
+      - リクエスト/レスポンス契約が明示
+      - ローカル/クラウド両方の動作手順を記載
+
+  - id: TASK-022
+    title: Azure Service Bus（イベント駆動）
+    milestone: M3
+    priority: P2
+    category: integrations
+    status: done
+    description: キュー/トピックを使った非同期イベント連携
+    deliverables:
+      - path: samples/integrations/azure_service_bus/
+    acceptance_criteria:
+      - デッドレター処理サンプルを含む
+      - 並列度と可観測性の指標を提示
+
+  - id: TASK-023
+    title: Microsoft Graph 読み取り（/me プロファイル）
+    milestone: M3
+    priority: P1
+    category: integrations
+    status: done
+    description: Graph APIを用いたユーザープロファイル参照
+    deliverables:
+      - path: samples/integrations/msgraph_me_profile/
+    acceptance_criteria:
+      - トークン取得とエラーハンドリングが明確
+      - 実行前提（アプリ登録/権限）が README に記載
+
+  # M4 — Identity
+  - id: TASK-030
+    title: On-Behalf-Of（OBO）フロー入門
+    milestone: M4
+    priority: P0
+    category: identity
+    status: done
+    description: Webアプリ→MAF→Graph のOBOサンプル（疑似でも可）
+    deliverables:
+      - path: samples/identity/obo_web_to_graph/
+    acceptance_criteria:
+      - トークンの委譲とスコープが図示/説明される
+      - セキュリティ注意点（キャッシュ/失効）を明記
+
+  - id: TASK-031
+    title: Managed Identity（クラウド実行）
+    milestone: M4
+    priority: P1
+    category: identity
+    status: done
+    description: マネージドIDでAzureリソースに安全にアクセス
+    deliverables:
+      - path: samples/identity/managed_identity/
+    acceptance_criteria:
+      - ローカル開発からクラウド移行の手順がある
+      - 役割割り当てと最小権限の指針を記載
+
+  - id: TASK-032
+    title: Federated Credentials（GitHub Actions→Azure）
+    milestone: M4
+    priority: P2
+    category: identity
+    status: done
+    description: ワークフロー実行IDを利用したCI/CDデプロイ例
+    deliverables:
+      - path: samples/identity/federated_credentials_gha/
+    acceptance_criteria:
+      - シークレット不要の発行フローを記載
+      - 最小構成のデモを再現可能
+
+  - id: TASK-033
+    title: ロールベース制御（ツール利用のガード）
+    milestone: M4
+    priority: P2
+    category: identity
+    status: done
+    description: ユーザーロールに応じてツール呼び出しを制限
+    deliverables:
+      - path: samples/identity/role_based_tool_guard/
+    acceptance_criteria:
+      - 許可/拒否の分岐テストを含む
+      - ログに判定根拠が出力される
+
+  # M5 — OSS Comparison
+  - id: TASK-040
+    title: LangGraphで直列フロー再現 + 比較文書
+    milestone: M5
+    priority: P2
+    category: oss
+    status: planned
+    description: 同等シナリオをLangGraphで実装し違いを示す
+    deliverables:
+      - path: samples/oss/langgraph_sequential_comparison/
+      - path: samples/oss/README.md
+    acceptance_criteria:
+      - 設計のメンタルモデル差分が整理される
+      - 実装手順/依存の差異が一覧化
+
+  - id: TASK-041
+    title: LangGraphでツール呼び出し再現 + 比較
+    milestone: M5
+    priority: P2
+    category: oss
+    status: planned
+    description: ツール連携のAPI差分とDXの比較
+    deliverables:
+      - path: samples/oss/langgraph_tool_calling_comparison/
+    acceptance_criteria:
+      - 主要API/エラーハンドリング差分が明確
+      - 実装LOCと設定項目の比較がある
+
+  - id: TASK-042
+    title: strands SDK 相当シナリオ再現 + 比較
+    milestone: M5
+    priority: P2
+    category: oss
+    status: planned
+    description: 代表的なシナリオを再現して相違点を記述
+    deliverables:
+      - path: samples/oss/strands_equivalent_comparison/
+    acceptance_criteria:
+      - 機能/拡張性/運用観点の比較がある
+      - 結論（適材適所）が簡潔に書かれる
+
+  # M6 — Ops & Evaluation
+  - id: TASK-050
+    title: OpenTelemetry トレーシング/スパン設計
+    milestone: M6
+    priority: P1
+    category: ops
+    status: done
+    description: 重要イベントのスパン化/親子関係/属性設計
+    deliverables:
+      - path: samples/observability/opentelemetry_tracing/
+    acceptance_criteria:
+      - 主要フローがトレースで可視化される
+      - 失敗時の診断に役立つ属性が付与
+
+  - id: TASK-051
+    title: コスト/トークン/レイテンシ計測
+    milestone: M6
+    priority: P2
+    category: ops
+    status: done
+    description: 実行時のメトリクス収集と可視化
+    deliverables:
+      - path: samples/observability/cost_latency_metrics/
+    acceptance_criteria:
+      - 実行後に要約レポートが出力
+      - しきい値超過で警告を表示
+
+  - id: TASK-052
+    title: 安全性とコンテンツフィルタの適用
+    milestone: M6
+    priority: P2
+    category: ops
+    status: done
+    description: 不適切コンテンツ検知とブロック/言い換えポリシー
+    deliverables:
+      - path: samples/observability/safety_and_filters/
+    acceptance_criteria:
+      - フィルタ命中時のユーザー体験が定義
+      - ログに根拠と緩和策が出力
+
+  - id: TASK-053
+    title: LLM評価（期待出力/LLM-as-judge）
+    milestone: M6
+    priority: P2
+    category: evaluation
+    status: done
+    description: ゴールデンテスト + LLM評価の手順を提供
+    deliverables:
+      - path: samples/evaluation/golden_and_llm_judge/
+    acceptance_criteria:
+      - 再現性のある評価コマンドがある
+      - 判定基準と限界がREADMEに記載
+
+  # M7 — End-to-End
+  - id: TASK-060
+    title: E2E 企業内エージェント（経費精算アシスト）
+    milestone: M7
+    priority: P2
+    category: e2e
+    status: done
+    description: RAG + Graph + ワークフロー + OBO を統合
+    deliverables:
+      - path: samples/e2e/expense_assistant/
+    acceptance_criteria:
+      - 主要ユースケースを通しでデモ可能
+      - セキュリティと運用の考慮点を記載
